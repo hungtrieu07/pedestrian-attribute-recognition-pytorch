@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import random
-import cPickle as pickle
+import pickle
 from scipy.io import loadmat
 
 np.random.seed(0)

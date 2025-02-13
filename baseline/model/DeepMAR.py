@@ -14,30 +14,36 @@ class DeepMAR_ResNet50(nn.Module):
     ):
         super(DeepMAR_ResNet50, self).__init__()
         
-        # init the necessary parameter for netwokr structure
-        if kwargs.has_key('num_att'):
+        # init the necessary parameter for network structure
+        if 'num_att' in kwargs:
             self.num_att = kwargs['num_att'] 
         else:
             self.num_att = 35
-        if kwargs.has_key('last_conv_stride'):
+
+        if 'last_conv_stride' in kwargs:
             self.last_conv_stride = kwargs['last_conv_stride']
         else:
             self.last_conv_stride = 2
-        if kwargs.has_key('drop_pool5'):
+
+        if 'drop_pool5' in kwargs:
             self.drop_pool5 = kwargs['drop_pool5']
         else:
             self.drop_pool5 = True 
-        if kwargs.has_key('drop_pool5_rate'):
+
+        if 'drop_pool5_rate' in kwargs:
             self.drop_pool5_rate = kwargs['drop_pool5_rate']
         else:
             self.drop_pool5_rate = 0.5
-        if kwargs.has_key('pretrained'):
+
+        if 'pretrained' in kwargs:
             self.pretrained = kwargs['pretrained'] 
         else:
             self.pretrained = True
 
+        # Define ResNet-50 base
         self.base = resnet50(pretrained=self.pretrained, last_conv_stride=self.last_conv_stride)
         
+        # Classifier
         self.classifier = nn.Linear(2048, self.num_att)
         init.normal(self.classifier.weight, std=0.001)
         init.constant(self.classifier.bias, 0)
@@ -51,6 +57,7 @@ class DeepMAR_ResNet50(nn.Module):
         x = self.classifier(x)
         return x
 
+
 class DeepMAR_ResNet50_ExtractFeature(object):
     """
     A feature extraction function
@@ -61,16 +68,18 @@ class DeepMAR_ResNet50_ExtractFeature(object):
     def __call__(self, imgs):
         old_train_eval_model = self.model.training
 
-        # set the model to be eval
+        # set the model to eval
         self.model.eval()
 
-        # imgs should be Variable
+        # imgs should be a Variable
         if not isinstance(imgs, Variable):
-            print 'imgs should be type: Variable'
+            print('imgs should be type: Variable')
             raise ValueError
+
         score = self.model(imgs)
         score = score.data.cpu().numpy()
 
+        # restore model's previous mode
         self.model.train(old_train_eval_model)
 
         return score
