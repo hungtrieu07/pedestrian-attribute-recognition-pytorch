@@ -3,8 +3,6 @@
 ## Preparation
 <font face="Times New Roman" size=4>
 
-**Prerequisite: Python 2.7 and Pytorch 0.3.1**
-
 1. Install [Pytorch](https://pytorch.org/)
 
 2. Download and prepare the dataset as follow:
