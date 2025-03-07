@@ -8,6 +8,7 @@ dataset/rap2/*
 !dataset/rap/.gitsave
 !dataset/pa100k/.gitsave
 !dataset/rap2/.gitsave
+*.zip
 
 # Compiled Object files
 *.slo
@@ -106,3 +107,10 @@ LOCK
 LOG*
 CURRENT
 MANIFEST-*
+
+test.py
+
+person_detection_model
+ov_exported_model
+onnx_models
+dataset

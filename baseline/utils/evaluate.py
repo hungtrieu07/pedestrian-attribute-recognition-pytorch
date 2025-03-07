@@ -67,81 +67,76 @@ def extract_feat(feat_func, dataset, **kwargs):
 
 
 def attribute_evaluate(feat_func, dataset, **kwargs):
-    """
-    Perform attribute recognition evaluation.
-    """
     print("Extracting features for attribute recognition")
     pt_result = extract_feat(feat_func, dataset)
-
+    
     print("Computing attribute recognition results")
     N = pt_result.shape[0]
     L = pt_result.shape[1]
 
-    # Prepare ground truth array
     gt_result = np.zeros(pt_result.shape, dtype=np.float32)
     for idx, label in enumerate(dataset.label):
         gt_result[idx, :] = label
 
-    # Binarize predictions (>= 0 => 1, < 0 => 0)
     pt_result[pt_result >= 0] = 1
     pt_result[pt_result < 0] = 0
 
-    return attribute_evaluate_lidw(gt_result, pt_result)
+    # Pass attribute names to the evaluation function
+    return attribute_evaluate_lidw(gt_result, pt_result, att_names=dataset.att_name)
 
 
-def attribute_evaluate_lidw(gt_result, pt_result):
-    """
-    Evaluate attribute predictions in both label-based and instance-based manners.
-    """
+def attribute_evaluate_lidw(gt_result, pt_result, att_names=None):
     if gt_result.shape != pt_result.shape:
         print('Shape between groundtruth and predicted results are different.')
         raise ValueError
 
-    result = {}
+    temp_result = {}
+    num_attributes = gt_result.shape[1]
+    for idx in range(num_attributes):
+        gt_pos = np.sum(gt_result[:, idx] == 1)
+        gt_neg = np.sum(gt_result[:, idx] == 0)
+        pt_pos = np.sum((gt_result[:, idx] == 1) * (pt_result[:, idx] == 1))
+        pt_neg = np.sum((gt_result[:, idx] == 0) * (pt_result[:, idx] == 0))
+        label_pos_acc = 1.0 * pt_pos / gt_pos
+        label_neg_acc = 1.0 * pt_neg / gt_neg
+        label_acc = (label_pos_acc + label_neg_acc) / 2.0
+        
+        key = att_names[idx] if att_names is not None and idx < len(att_names) else idx
+        temp_result[key] = {
+            'label_pos_acc': label_pos_acc,
+            'label_neg_acc': label_neg_acc,
+            'label_acc': label_acc
+        }
 
-    # -- Label-based accuracy --
-    gt_pos = np.sum((gt_result == 1).astype(float), axis=0)
-    gt_neg = np.sum((gt_result == 0).astype(float), axis=0)
-
-    pt_pos = np.sum((gt_result == 1).astype(float) * (pt_result == 1).astype(float), axis=0)
-    pt_neg = np.sum((gt_result == 0).astype(float) * (pt_result == 0).astype(float), axis=0)
-
-    label_pos_acc = 1.0 * pt_pos / gt_pos
-    label_neg_acc = 1.0 * pt_neg / gt_neg
-    label_acc = (label_pos_acc + label_neg_acc) / 2.0
-
-    result['label_pos_acc'] = label_pos_acc
-    result['label_neg_acc'] = label_neg_acc
-    result['label_acc'] = label_acc
-
-    # -- Instance-based metrics --
-    gt_pos = np.sum((gt_result == 1).astype(float), axis=1)
-    pt_pos = np.sum((pt_result == 1).astype(float), axis=1)
-    floatersect_pos = np.sum((gt_result == 1).astype(float) * (pt_result == 1).astype(float), axis=1)
-    union_pos = np.sum(((gt_result == 1) + (pt_result == 1)).astype(float), axis=1)
+    # Compute instance-based metrics
+    gt_pos_inst = np.sum(gt_result == 1, axis=1)
+    pt_pos_inst = np.sum(pt_result == 1, axis=1)
+    intersect_pos = np.sum((gt_result == 1) * (pt_result == 1), axis=1)
+    union_pos = np.sum((gt_result == 1) + (pt_result == 1), axis=1)
 
     cnt_eff = float(gt_result.shape[0])
-    for i, key in enumerate(gt_pos):
-        # If ground-truth has zero positive labels,
-        # avoid division by zero by artificially setting denominators to 1
-        if key == 0:
+    for i, key_val in enumerate(gt_pos_inst):
+        if key_val == 0:
             union_pos[i] = 1
-            pt_pos[i] = 1
-            gt_pos[i] = 1
+            pt_pos_inst[i] = 1
+            gt_pos_inst[i] = 1
             cnt_eff -= 1
             continue
-        # Avoid dividing by zero if pt_pos[i] == 0
-        if pt_pos[i] == 0:
-            pt_pos[i] = 1
+        if pt_pos_inst[i] == 0:
+            pt_pos_inst[i] = 1
 
-    instance_acc = np.sum(floatersect_pos / union_pos) / cnt_eff
-    instance_precision = np.sum(floatersect_pos / pt_pos) / cnt_eff
-    instance_recall = np.sum(floatersect_pos / gt_pos) / cnt_eff
-    floatance_F1 = 2 * instance_precision * instance_recall / (instance_precision + instance_recall)
+    instance_acc = np.sum(intersect_pos / union_pos) / cnt_eff
+    instance_precision = np.sum(intersect_pos / pt_pos_inst) / cnt_eff
+    instance_recall = np.sum(intersect_pos / gt_pos_inst) / cnt_eff
+    instance_F1 = 2 * instance_precision * instance_recall / (instance_precision + instance_recall)
 
-    result['instance_acc'] = instance_acc
-    result['instance_precision'] = instance_precision
-    result['instance_recall'] = instance_recall
-    result['instance_F1'] = floatance_F1
+    # Store instance metrics separately
+    temp_result['instance'] = {
+        'acc': instance_acc,
+        'precision': instance_precision,
+        'recall': instance_recall,
+        'F1': instance_F1
+    }
 
-    return result
+    return temp_result
+

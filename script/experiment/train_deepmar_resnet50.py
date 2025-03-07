@@ -2,8 +2,6 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-import sys
-import os
 import numpy as np
 import random
 import math
@@ -236,6 +234,7 @@ test_set = AttDataset(
     split = cfg.test_split,
     partition_idx = cfg.partition_idx,
     transform = test_transform)
+
 ### Att model ###
 model = DeepMAR_ResNet50(**cfg.model_kwargs)
 
@@ -305,11 +304,23 @@ feat_func_att = DeepMAR_ResNet50_ExtractFeature(model=model_w)
 def attribute_evaluate_subfunc(feat_func, test_set, **test_kwargs): 
     """ evaluate the attribute recognition precision """
     result = attribute_evaluate(feat_func, test_set, **test_kwargs)
+    
+    print(result)
+    
     print('-' * 60)
-    print('Evaluation on %s set:' % (cfg.test_split))
-    print('Label-based evaluation: \n mA: %.4f'%(np.mean(result['label_acc'])))
+    print(" {:>25s} | {:^5s} | {:^5s} | {:^5s} ".format("Attr Name","Positive","Negative","Accuracy"))
+    print("="*48)
+    for att in test_set.att_name:
+        pos_acc = 100 * result[att]['label_pos_acc']
+        neg_acc = 100 * result[att]['label_neg_acc']
+        avg_acc = 100 * result[att]['label_acc']
+        print(" {:>25s} | {:.2f} | {:.2f} | {:.2f} ".format(att, pos_acc, neg_acc, avg_acc))
+
+    print( '=' * 48)
+    print(f'Evaluation on {cfg.test_split} set')
+    # print('Label-based evaluation: \n mA: %.4f'%(np.mean(result['label_acc'])))
     print('Instance-based evaluation: \n Acc: %.4f, Prec: %.4f, Rec: %.4f, F1: %.4f' \
-        %(result['instance_acc'], result['instance_precision'], result['instance_recall'], result['instance_F1']))
+        %(result['instance']['acc'], result['instance']['precision'], result['instance']['recall'], result['instance']['F1']))
     print('-' * 60)
 
 # print the model into log

@@ -1,17 +1,10 @@
-import sys
-import os
-import numpy as np
-import random
-import math
-
 import torch
 import torchvision.transforms as transforms
 from torch.autograd import Variable
 from torch.nn.parallel import DataParallel
 import pickle
-import time
 import argparse
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageDraw
 
 from baseline.model.DeepMAR import DeepMAR_ResNet50
 from baseline.utils.utils import str2bool
@@ -31,7 +24,7 @@ class Config(object):
         parser.add_argument('--resize', type=eval, default=(224, 224))
         parser.add_argument('--last_conv_stride', type=int, default=2, choices=[1,2])
         # demo image
-        parser.add_argument('--demo_image', type=str, default='./dataset/demo/demo_image.png')
+        parser.add_argument('--demo_image', type=str, default='./dataset/demo/demo2.webp')
         ## dataset parameter
         parser.add_argument('--dataset', type=str, default='peta',
                 choices=['peta','rap', 'pa100k'])
@@ -67,7 +60,8 @@ class Config(object):
         datasets['pa100k'] = './dataset/pa100k/pa100k_dataset.pkl'
 
         if args.dataset in datasets:
-            dataset = pickle.load(open(datasets[args.dataset]))
+            with open(datasets[args.dataset], 'rb') as f:
+                dataset = pickle.load(f)
         else:
             print('%s does not exist.'%(args.dataset))
             raise ValueError
