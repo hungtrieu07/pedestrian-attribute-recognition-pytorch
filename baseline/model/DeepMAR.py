@@ -45,8 +45,8 @@ class DeepMAR_ResNet50(nn.Module):
         
         # Classifier
         self.classifier = nn.Linear(2048, self.num_att)
-        init.normal(self.classifier.weight, std=0.001)
-        init.constant(self.classifier.bias, 0)
+        init.normal_(self.classifier.weight, std=0.001)
+        init.constant_(self.classifier.bias, 0)
 
     def forward(self, x):
         x = self.base(x)

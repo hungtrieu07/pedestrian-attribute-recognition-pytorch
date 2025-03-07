@@ -1,0 +1,36 @@
+{
+    "objects": [
+        {
+            "classification_layer_name:output": {
+                "confidence": 0.9999240636825562,
+                "label": "hairShort",
+                "label_id": 2,
+                "model": {
+                    "name": "main_graph"
+                }
+            },
+            "detection": {
+                "bounding_box": {
+                    "x_max": 0.9047737733240986,
+                    "x_min": 0.7569175356167186,
+                    "y_max": 1.0,
+                    "y_min": 0.4971474721602718
+                },
+                "confidence": 0.8437960147857666,
+                "label": "person",
+                "label_id": 3
+            },
+            "h": 543,
+            "region_id": 923,
+            "roi_type": "person",
+            "w": 284,
+            "x": 1453,
+            "y": 537
+        }
+    ],
+    "resolution": {
+        "height": 1080,
+        "width": 1920
+    },
+    "timestamp": 14067000000
+}
