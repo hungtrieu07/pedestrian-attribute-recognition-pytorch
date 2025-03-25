@@ -114,3 +114,5 @@ person_detection_model
 ov_exported_model
 onnx_models
 dataset
+*.pt
+output

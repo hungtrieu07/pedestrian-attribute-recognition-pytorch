@@ -14,8 +14,8 @@ detection_model = YOLO("best.pt", task="detect")
 # 2. DeepMAR attribute model (converted to OpenVINO)
 ie = Core()
 # Replace with your DeepMAR model’s XML and BIN files
-attr_model_xml = "ov_exported_model/person-attr/model.xml"
-attr_model_bin = "ov_exported_model/person-attr/model.bin"
+attr_model_xml = "onnx_models/openvino_model/model.xml"
+attr_model_bin = "onnx_models/openvino_model/model.bin"
 attr_model = ie.read_model(model=attr_model_xml, weights=attr_model_bin)
 compiled_attr_model = ie.compile_model(model=attr_model, device_name="CPU")
 input_layer_attr = compiled_attr_model.inputs[0]
@@ -148,6 +148,8 @@ while True:
 
                 # Run attribute inference with OpenVINO
                 attr_probs = compiled_attr_model([input_tensor])[output_layer_attr][0]
+
+                print("Attribute scores:", attr_probs)
                 # Convert raw logits to probabilities using the sigmoid function
 
                 # Build a text string for attributes (here, listing all with score >= 0)

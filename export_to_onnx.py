@@ -15,7 +15,7 @@ class DeepMAR_ResNet50_Export(DeepMAR_ResNet50):
         if self.drop_pool5:
             x = F.dropout(x, p=self.drop_pool5_rate, training=self.training)
         x = self.classifier(x)
-        x = torch.sigmoid(x)  # Sigmoid for multi-label confidence scores
+        # x = torch.sigmoid(x)  # Sigmoid for multi-label confidence scores
         return x
 
 def export_deepmar_to_onnx(model_path, onnx_output_path, num_att):
@@ -45,7 +45,7 @@ def export_deepmar_to_onnx(model_path, onnx_output_path, num_att):
     with torch.no_grad():
         output = model(dummy_input)
     print(f"Dummy input test output shape: {output.shape}")
-    print(f"Sample output (with sigmoid): {output[0][:5]}")
+    # print(f"Sample output (with sigmoid): {output[0][:5]}")
 
     # Print model summary
     print("Model Summary:")

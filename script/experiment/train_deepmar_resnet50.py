@@ -33,7 +33,7 @@ from baseline.utils.utils import set_devices
 from baseline.utils.utils import AverageMeter
 from baseline.utils.utils import to_scalar 
 from baseline.utils.utils import may_set_mode 
-from baseline.utils.utils import may_mkdir 
+from baseline.utils.utils import may_mkdir
 from baseline.utils.utils import set_seed
 
 class Config(object):
