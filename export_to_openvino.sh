@@ -22,7 +22,7 @@ mkdir -p "$output_dir"
 echo "Converting $input_model to OpenVINO format..."
 ovc "$input_model" \
     --output_model "$output_dir/model" \
-    --compress_to_fp16 false \
+    --compress_to_fp16 true \
     --input [1,3,224,224]
 
 if [ $? -eq 0 ]; then

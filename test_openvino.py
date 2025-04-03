@@ -149,26 +149,37 @@ while True:
                 # Run attribute inference with OpenVINO
                 attr_probs = compiled_attr_model([input_tensor])[output_layer_attr][0]
 
-                print("Attribute scores:", attr_probs)
+                # print("Attribute scores:", attr_probs)
                 # Convert raw logits to probabilities using the sigmoid function
+                attr_probs = 1 / (1 + np.exp(-attr_probs))
 
-                # Build a text string for attributes (here, listing all with score >= 0)
+                # print("Attribute scores:", attr_probs)
+
+                # Build a list of text strings for attributes with score >= 0.7
                 attr_texts = []
                 for idx, score in enumerate(attr_probs):
-                    if score >= 0.5:  # Adjust threshold if needed
+                    if score >= 0.7:  # Adjust threshold if needed
                         attr_texts.append(f"{att_list[idx]}: {score:.3f}")
-                text_to_draw = ", ".join(attr_texts)
 
-                # Draw attribute text on the full annotated frame above the person box
-                cv2.putText(frame, text_to_draw, (x1, y1 - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                # Print to terminal (this should already show newlines correctly)
+                text_to_draw = "\n".join(attr_texts)
+                print(text_to_draw)
+
+                # Draw attribute text on the frame, one line per attribute
+                y_offset = 15  # Space between lines
+                font_scale = 0.5
+                font_thickness = 2
+                for i, attr_text in enumerate(attr_texts):
+                    y_pos = y1 - 10 - (len(attr_texts) - i - 1) * y_offset  # Adjust y-position for each line
+                    cv2.putText(frame, attr_text, (x1, y_pos),
+                                cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), font_thickness)
 
     # Resize annotated frame back to original dimensions (if needed)
     frame = cv2.resize(frame, (frame_width, frame_height))
 
     # Display the frame
     cv2.imshow("Inference", frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(fps) & 0xFF == ord('q'):
         break
 
 cap.release()

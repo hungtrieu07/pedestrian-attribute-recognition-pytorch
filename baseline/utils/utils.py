@@ -199,8 +199,12 @@ def transfer_optim_state(state, device_id=-1):
     for key, val in state.items():
         if isinstance(val, dict):
             transfer_optim_state(val, device_id=device_id)
-        elif isinstance(val, Variable):
-            raise RuntimeError("Oops, state[{}] is a Variable!".format(key))
+        elif isinstance(val, Variable):  # Handle legacy Variable
+            val = val.data  # Convert Variable to tensor
+            if device_id == -1:
+                state[key] = val.cpu()
+            else:
+                state[key] = val.cuda(device=device_id)
         elif isinstance(val, torch.nn.Parameter):
             raise RuntimeError("Oops, state[{}] is a Parameter!".format(key))
         else:
@@ -210,7 +214,7 @@ def transfer_optim_state(state, device_id=-1):
                 else:
                     state[key] = val.cuda(device=device_id)
             except:
-                pass
+                raise RuntimeError("Cannot not transfer state[{}]".format(key))
             
 
 def load_state_dict(model, src_state_dict):

@@ -115,4 +115,5 @@ ov_exported_model
 onnx_models
 dataset
 *.pt
+*.pth
 output

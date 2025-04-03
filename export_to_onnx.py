@@ -71,7 +71,7 @@ def export_deepmar_to_onnx(model_path, onnx_output_path, num_att):
     print("ONNX model verification completed!")
 
 if __name__ == "__main__":
-    model_path = "exp/deepmar_resnet50/peta/partition0/run1/model/ckpt_epoch150.pth"  # Update as needed
+    model_path = "ckpt_epoch750.pth"  # Update as needed
     onnx_output_path = "onnx_models/deepmar.onnx"
     num_att = 45  # Adjust based on your training configuration
     export_deepmar_to_onnx(model_path, onnx_output_path, num_att)
