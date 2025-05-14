@@ -15,7 +15,7 @@ class DeepMAR_ResNet50_Export(DeepMAR_ResNet50):
         if self.drop_pool5:
             x = F.dropout(x, p=self.drop_pool5_rate, training=self.training)
         x = self.classifier(x)
-        # x = torch.sigmoid(x)  # Sigmoid for multi-label confidence scores
+        x = torch.sigmoid(x)  # Sigmoid for multi-label confidence scores
         return x
 
 def export_deepmar_to_onnx(model_path, onnx_output_path, num_att):
@@ -73,5 +73,5 @@ def export_deepmar_to_onnx(model_path, onnx_output_path, num_att):
 if __name__ == "__main__":
     model_path = "ckpt_epoch750.pth"  # Update as needed
     onnx_output_path = "onnx_models/deepmar.onnx"
-    num_att = 45  # Adjust based on your training configuration
+    num_att = 44  # Adjust based on your training configuration
     export_deepmar_to_onnx(model_path, onnx_output_path, num_att)

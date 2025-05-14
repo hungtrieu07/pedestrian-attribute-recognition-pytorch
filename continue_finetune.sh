@@ -9,7 +9,7 @@ BASE_EXP_DIR="exp/deepmar_resnet50/peta"
 # Loop over partitions 0 to 4
 for partition in {0..4}
 do
-    echo "Finetuning on partition $partitio
+    echo "Finetuning on partition $partition..."
 
     # Calculate total epochs for this partition
     TOTAL_EPOCHS=$((INITIAL_EPOCHS + (partition + 1) * EPOCHS_PER_PARTITION))
